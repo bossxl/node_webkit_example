@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Tester Finder | uTest Test</title>
+  <script type="text/javascript">
+  var EventEmitter = require("events").EventEmitter;
+  var util = require("util")
+
+    function Main() {
+      this.on('loadComplete', function(fileData) {
+        require("./js/processFiles").main(this, fileData);
+      });
+      this.on('processComplete', function(readyData) {
+        for (var data in readyData) {
+          localStorage.setItem(data, JSON.stringify(readyData[data]));
+        }
+
+      });
+      require("./js/loadFiles").main(this);
+
+    }
+  util.inherits(Main, EventEmitter);
+  new Main();
+  </script>
+  <script src="js/angular.min.js"></script>
+  <script src="js/controller.js"></script>
+  <style type="text/css">
+  #selection {
+    overflow: hidden;
+    width: 100%;
+  }
+  #device, #country, #counts {
+    width: 25%;
+    display: block;
+    float: left;
+  }
+  #data tr:nth-child(even) {
+    background-color: #99ff99;
+  }
+  </style>
+
+</head>
+
+<body ng-app="app" ng-controller="MainController">
+  <ul id="selection">
+    <li id="counts">
+      <span>Total Devices: {{ devices.length }}</span>
+      <br>
+      <span>Total Users: {{ users.length }}</span>
+      <br>
+      <span>Total Countries: {{ countries.length }}</span>
+    </li>
+    <li id="device">Device:
+      <select multiple ng-model="possibleDevices" size="11">
+        <option ng-repeat="device in devices" value="{{ $index }}">{{device}}</option>
+      </select>
+    </li>
+    <li id="country">Country:
+      <select multiple ng-model="possibleCountries">
+        <option value="all">All</option>
+        <option ng-repeat="country in countries" value="{{ country }}">{{country}}</option>
+      </select>
+    </li>
+  </ul>
+  <div>
+    <table id="data">
+      <tr>
+        <th>Tester ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Country</th>
+        <th>Total Bug Count</th>
+        <th>Specified Bug Count</th>
+        <th>Devices</th>
+      </tr>
+      <tr ng-repeat="user in users | testerFilter:possibleDevices:possibleCountries">
+        <td>{{ user.testerId }}</td>
+        <td>{{ user.firstName }}</td>
+        <td>{{ user.lastName }}</td>
+        <td>{{ user.country }}</td>
+        <td>{{ user.bugs.length }}</td>
+        <td>{{ user.bugResult ? user.bugResult : user.bugs.length}}</td>
+        <td>{{ user.devices | deviceNames }}</td>
+      </tr>
+    </table>
+  </div>
+</body>
+
+</html>
